@@ -11,8 +11,9 @@ type SlideShow struct {
 }
 
 type Slide struct {
-	photos []Photo
-	tags   []string
+	photos    []Photo
+	tags      []string
+	n_of_tags int
 }
 
 type Photo struct {

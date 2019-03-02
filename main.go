@@ -6,33 +6,38 @@ import (
 	"sort"
 )
 
-func swap(arr []Photo, a int, b int) {
+func swap(arr []Slide, a int, b int) {
 
-	temp := arr[b]
+	/* temp := arr[b]
 	arr[b] = arr[a]
-	arr[a] = temp
+	arr[a] = temp */
+	arr[a], arr[b] = arr[b], arr[a]
 }
 
-type ByTag []Photo
+type ByTag SlideShow
 
-func (a ByTag) Len() int           { return len(a) }
-func (a ByTag) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByTag) Less(i, j int) bool { return a[i].n_of_tags < a[j].n_of_tags }
+func (slideShow ByTag) Len() int { return slideShow.n_of_slides }
+func (slideShow ByTag) Swap(i, j int) {
+	slideShow.slides[i], slideShow.slides[j] = slideShow.slides[j], slideShow.slides[i]
+}
+func (slideShow ByTag) Less(i, j int) bool {
+	return slideShow.slides[i].n_of_tags < slideShow.slides[j].n_of_tags
+}
 
 func main() {
 
 	args := os.Args[1:]
 
 	if len(args) != 2 {
-		fmt.Println("ERROR: Usage: arg1 arg2 (arg1 is input path, arg2 is output path")
+		fmt.Println("ERROR: Usage: arg1 arg2 (arg1 is input path, arg2 is output path)")
 		return
 	}
 
 	fmt.Println("Reading input...")
 	collection := readInput(args[0])
 	slideShow := SlideShow{}
-	slides := []Slide{}
-	var slidePhoto []Photo
+	//slides := []Slide{}
+	//var slidePhoto []Photo
 	var count int
 
 	for _, photo := range collection.photos {
@@ -40,13 +45,14 @@ func main() {
 		count = 0
 		if photo.orient == 'H' {
 			count++
-			slides = append(slides, Slide{photos: []Photo{photo}})
-			slidePhoto = append(slidePhoto, photo)
+			slideShow.slides = append(slideShow.slides, Slide{photos: []Photo{photo}})
+			//slidePhoto = append(slidePhoto, photo)
 		}
 
 	}
 
-	sort.Sort(ByTag(slidePhoto))
+	//sort.Sort(ByTag(slidePhoto))
+	sort.Sort(ByTag(slideShow))
 
 	punteggio := 0
 	var pos int
@@ -55,8 +61,11 @@ func main() {
 	for i := 0; i < count-1; i++ {
 		for j := i + 1; j < count; j++ {
 
-			slide1 := Slide{photos: []Photo{slidePhoto[i]}}
-			slide2 := Slide{photos: []Photo{slidePhoto[j]}}
+			//slide1 := Slide{photos: []Photo{slidePhoto[i]}}
+			//slide2 := Slide{photos: []Photo{slidePhoto[j]}}
+
+			slide1 := slideShow.slides[i]
+			slide2 := slideShow.slides[j]
 
 			temp := calcolaPunteggio(slide1, slide2)
 			if punteggio < temp {
@@ -65,16 +74,18 @@ func main() {
 			}
 		}
 
-		swap(slidePhoto, pos, i+1)
+		//swap(slidePhoto, pos, i+1)
+		swap(slideShow.slides, pos, i+1)
 	}
 
-	i := 0
+	/* i := 0
 	for _, photo := range slidePhoto {
-		slideShow.slides = append(slideShow.slides, Slide{[]Photo{photo}, photo.tags})
+		slideShow.slides = append(slideShow.slides, Slide{[]Photo{photo}, photo.tags, photo.n_of_tags})
 		i++
 	}
+	slideShow.n_of_slides = i*/
+	slideShow.n_of_slides = len(slideShow.slides)
 
-	slideShow.n_of_slides = i
 	fmt.Println("Writing output at", args[1])
 	writeOutput(slideShow, args[1])
 	fmt.Println("Finished :D")
